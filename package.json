@@ -1,0 +1,19 @@
+{
+    "name": "metropark-commute",
+    "version": "0.1.0",
+    "private": true,
+    "description": "NJ Transit Metropark -> NY Penn wall display: commute dashboard + photo frame",
+    "scripts": {
+        "dev": "concurrently -n server,client -c yellow,cyan \"npm run dev -w server\" \"npm run dev -w client\"",
+        "build": "npm run build -w client",
+        "start": "npm start -w server"
+    },
+    "workspaces": [
+        "client",
+        "server"
+    ],
+    "devDependencies": {
+        "concurrently": "^9.1.2",
+        "cross-env": "^10.1.0"
+    }
+}
