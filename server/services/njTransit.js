@@ -18,8 +18,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TOKEN_CACHE = path.join(__dirname, "..", ".njt-token.json");
 
-const BASE = 
-process.env.NJT_BASE_URL || "https://testraildata.njtransit.com/api/TrainData";
+const BASE = process.env.NJT_BASE_URL || "https://testraildata.njtransit.com/api/TrainData";
 const STATION = process.env.NJT_STATION_CODE || "MP"; // Metropark
 const TOKEN_TTL_MS = 23 * 60 * 60 * 1000;
 
@@ -67,8 +66,7 @@ async function fetchSchedule(token) {
     const body = new FormData();
     body.append("token", token);
     body.append("station", STATION);
-    body.append("line", "");
-    return fetch(`${BASE}/getTrainSchedule19Rec`, {
+    return fetch(`${BASE}/getTrainSchedule`, {
         method: "POST",
         headers: { accept: "text/plain" },
         body,
@@ -82,7 +80,7 @@ export async function getLiveDepartures() {
         token = await mintToken();
         res = await fetchSchedule(token);
     }
-    if (!res.ok) throw new Error(`getTrainSchedule19Rec HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`getTrainSchedule HTTP ${res.status}`);
 
     const data = await res.json();
     if (data?.errorMessage) throw new Error(`schedule: ${data.errorMessage}`);
@@ -99,7 +97,7 @@ function shape(data) {
     const items = Array.isArray(data?.ITEMS) ? data.ITEMS : [];
     const departures = items
     .filter(isNJTPassengerTrain)
-    .filter(goesToNewYork)
+    .filter(headsToNewYork)
     .map(normalize)
     .filter(Boolean)
     .slice(0, 4);
@@ -121,9 +119,20 @@ function isNJTPassengerTrain(t) {
     return /^\d+$/.test(String(t?.TRAIN_ID || "").trim());
 }
 
-/** Destinations seen in the wild: "New York", "New York -SEC". */
-function goesToNewYork(t) {
-    return String(t?.DESTINATION || "").toLowerCase().includes("new york");
+/** Keep only trains that reach New York AFTER stopping at our station. 
+ * NJT returns each train's full run, and southbound trains (NY -> Trenton)
+ * list New York FIRST - they'd pass the old destination-string check while 
+ * actually heading away from the city.
+ */
+function headsToNewYork(t) {
+    const stops = t?.STOPS;
+    if (!Array.isArray(stops)) {
+        // no stop list: fall back to the destination string.
+        return String(t?.DESTINATION || "").toLowerCase().includes("new york");
+    }
+    const from = stops.findIndex((s) => s?.STATION_2CHAR === STATION);
+    const to = stops.findIndex((s) => s?.STATION_2CHAR === "NY");
+    return from !== -1 && to -1 && to > from;
 }
 
 function normalize(t) {
@@ -146,8 +155,31 @@ function normalize(t) {
         track: track || null,
         status: statusFrom(t.STATUS, delayMinutes),
         delayMinutes,
-        arrivesNYP: null, // getTrainSchedule19Rec has no stop list; see getTrainStopList
+        arrivesNYP: findStopArrival(t.STOPS, STATION, "NY"),
+        stopsToNY: countStopsBetween(t.STOPS, STATION, "NY"),
     };
+}
+
+/**
+ *  Pull the estimated arrival time at a given station out of a train's STOPS.
+ */
+function findStopArrival(stops, fromCode, toCode) {
+    if(!Array.isArray(stops)) return null;
+    const from = stops.findIndex((s) => s?.STATION_2CHAR === fromCode);
+    const to = stops.findIndex((s) => s?.STATION_2CHAR === toCode);
+     console.log("[njt] arrival:", { from, to, raw: stops[to]?.TIME, parsed: parseNjtDate(stops[to]?.TIME) });
+    if (from === -1 || to === -1 || to <= from) return null;
+    const t = parseNjtDate(stop.TIME);
+    return t ? t.toISOString() : null;
+}
+
+/** Intermediate stops between origin and destination - low count means express */
+function countStopsBetween(stops, fromCode, toCode) {
+    if (!Array.isArray(stops)) return null;
+    const from = stops.findIndex((s) => s?.STATION_2CHAR === fromCode);
+    const to = stops.findIndex((s) => s?.STATION_2CHAR === toCode);
+    if (from === -1 || to === -1 || to <= from) return null;
+    return to - from - 1;
 }
 
 /** NJT sends "30-May-2024 11:52:00 AM" - parsed explicitly, no engine guessing. */

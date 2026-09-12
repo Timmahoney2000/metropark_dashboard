@@ -3,6 +3,11 @@ import React from "react";
 const fmtTime = (d) =>
     d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true});
 
+const fmtDate = (d) =>
+    d.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" });
+
+const LINE_NAMES = { "Northeast Corrdr" : "NEC", "No jersey Coast": "NJCL", "Raritan Valley": "RVL" };
+
 const STATUS_LABEL = {
     "on-time": "ON TIME",
     late: "DELAYED",
@@ -31,8 +36,6 @@ export default function Dashboard({ config, now, data }) {
         alerts.unshift({ severity: "warn", text: "Data may be out of date - last update failed" });
     const alert = alerts[0];
 
-    console.log("[dash] raw:", data?.departures?.length, "filtered:", departures.length, "now:", now.toISOString());
-
     return (
         <div className="board">
             <div className="rail">
@@ -40,20 +43,17 @@ export default function Dashboard({ config, now, data }) {
                     <strong>{config.station}</strong> to <strong>{config.destination}</strong>
                 </div>
                 <div className="clock">
+                    <em>Northeast Corridor</em>
                     {h}:{m}
                     <small>{ampm}</small>
+                    <b>{fmtDate(now)}</b>
                 </div>
                 <div className={"leave" + (leaveIn !== null && leaveIn <= 5? " urgent" : "")}>
                 {next ? (
                     leaveIn > 0 ? (
-                        <>
-                        Leave in <strong>Leave now</strong> for the {fmtTime(new Date(next.estimated))}
-                        </>
-                      
+                        <>Leave in <strong>{leaveIn} min</strong> for the {fmtTime(new Date(next.estimated))}</>
                     ) : (
-                        <>
-                        <strong>Leave now</strong> for the {fmtTime(new Date(next.estimated))}
-                        </>
+                        <><strong>Leave now</strong> for the {fmtTime(new Date(next.estimated))}</>
                     )
                 ) : (
                     "No more morning trains"
@@ -64,9 +64,10 @@ export default function Dashboard({ config, now, data }) {
             <div className="stripe" />
 
                 <div className="departures">
-                    <div className="dep-hard">
+                    <div className="dep-head">
                         <div>Departs</div>
                         <div>Train</div>
+                        <div>Arrives</div>
                         <div>In</div>
                         <div style={{ textAlign: "center" }}>Track</div>
                         <div style={{ textAlign: "right" }}>Status</div>
@@ -79,13 +80,16 @@ export default function Dashboard({ config, now, data }) {
                                 {d.delayMinutes > 0 && <s>{fmtTime(new Date(d.scheduled))}</s>}
                                 </div>
                                 <div className="train">
-                                    <b>#{d.train}</b>
-                                    {d.line}
+                                <b>#{d.train}</b>
                                     </div>
+                                    <div className="arrives">
+                                        {d.arrivesNYP ? fmtTime(new Date(d.arrivesNYP)) : "--"}
+                                        <span>NY Penn</span>
+                                        </div>
                                     <div className="in">{minsTo(d.estimated)} min</div>
                                     <div className="track">
+                                         <span>track</span>
                                         {d.track || "-"}
-                                        <span>track</span>
                                         </div>
                                         <div className={"status " + d.status}>
                                             {STATUS_LABEL[d.status] || d.status}

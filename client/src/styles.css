@@ -70,7 +70,7 @@ html, body, #root {
     line-height: 1.35;
 }
 .rail .leave strong { color: var(--ok-green); font-weight: 800; }
-.rail .leave.urgent strong { color: var(--nec-criminals); }
+.rail .leave.urgent strong { color: var(--nec-crimson); }
 
 /* --- Crimson divider stripe ---------------------------------- */
 .stripe { background: var(--nec-crimson); }
@@ -84,7 +84,7 @@ html, body, #root {
 }
 .dep-head {
     display: grid;
-    grid-template-columns: 220px 170px 1fr 150px 260px;
+    grid-template-columns: 220px 170px 200px 1fr 150px 260px;
     font-size: 20px;
     font-weight: 600;
     color: var(--amber-dim);
@@ -92,14 +92,36 @@ html, body, #root {
 }
 .dep-row {
     display: grid;
-    grid-template-columns: 220px 170px 1fr 150px 260px;
+    grid-template-columns: 220px 170px 200px 1fr 150px 260px;
     align-items: center;
     background: var(--panel);
     border-radius: 6px;
     padding: 14px 18px;
     min-height: 78px;
 }
-.dep-row.next { outline: 2px solid va(--amber); }
+.dep-head, .dep-row {
+    grid-template-columns: 220px 150px 200px 120px 110px 220px;
+}
+
+.rail .clock em {
+    display: block;
+    font-size: 24px;
+    font-weight: 800;
+    font-style: normal;
+    letter-spacing: 0.08em;
+    color: var(--nec-crimson);
+    margin-bottom: 4px;
+}
+
+.rail .clock b {
+    display: block;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--amber-dim);
+    margin-top: 6px;
+}
+
+.dep-row.next { outline: 2px solid var(--amber); }
 .dep-row .time { font-size: 52px; font-weight: 800; line-height: 1; }
 .dep-row .time s {
     display: block;
@@ -108,12 +130,14 @@ html, body, #root {
     color: var(--amber-dim);
     text-decoration: line-through;
 }
-.dep-row .train { font-size: 26px; font-weight: 600; color: var(--amber-dim); }
+.dep-row .train { font-size: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;  font-weight: 600; color: var(--amber-dim); }
 .dep-row .train b { display: block; font-size: 30px; color: var(--amber); font-weight: 800; }
 .dep-row .in { font-size: 30px; font-weight: 600; }
 .dep-row .track { font-size: 30px; font-weight: 800; text-align: center; }
 .dep-row .track span { display: block; font-size: 18px; font-weight: 600; color: var(--amber-dim); }
 .dep-row .status { font-size: 28px; font-weight: 800; text-align: right; }
+.dep-row { font-size: 30px; font-weight:600; }
+.dep-row .arrives span { display: block; font-size: 18px; font-weight: 600; color: var(--amber-dim); }
 .status.on-time, .status.boarding, .status.all-aboard { color: var(--ok-green); }
 .status.late, .status.canceled { color: var(--nec-crimson); }
 
@@ -137,16 +161,31 @@ html, body, #root {
 
 /* --- Photo frame mode ------------------------------------------ */
 .frame { position: relative; width: 100%; height: 100%; background: #000; }
-.frame img {
+
+.frame .single {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.6s ease;
+}
+.frame .single.showing { opacity: 1; }
+.frame .single .bg {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0;
-    transition: opacity 1.6s ease;
+    filter: blur(28px) brightness(0.45);
+    transform: scale(1.15);
 }
-.frame img.showing { opacity: 1; }
+.frame .single .fg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 .frame .filmstrip {
     position: absolute;
     inset: 0;
@@ -155,7 +194,26 @@ html, body, #root {
     grid-auto-columns: 1fr;
     gap: 4px;
 }
-.frame .filmstrip img { position: static; opacity: 1; transition: none; }
+.frame .filmstrip .cell {
+    position: relative;
+    overflow: hidden;
+}
+.frame .filmstrip .cell .bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(24px) brightness(0.4);
+    transform: scale(1.2);
+}
+.frame .filmstrip .cell .fg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
 .frame .clock-chip {
     position: absolute;
     right: 28px;
@@ -179,5 +237,5 @@ html, body, #root {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .frame img { transition: none; }
+    .frame .single { transition: none; }
 }
