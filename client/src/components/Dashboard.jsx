@@ -32,8 +32,8 @@ export default function Dashboard({ config, now, data }) {
     const alerts = [...(data?.alerts || [])];
     for (const c of canceled)
         alerts.unshift({ severity: "bad", text: `Train ${c.train} (${fmtTime(new Date(c.scheduled))}) is canceled` });
-    if (data?.stale)
-        alerts.unshift({ severity: "warn", text: "Data may be out of date - last update failed" });
+    if (data?.source === "unavailable")
+        alerts.unshift({ severity: "bad", text: "Unable to reach NJ Transit - check the board at the station" });
     const alert = alerts[0];
 
     return (
@@ -101,7 +101,11 @@ export default function Dashboard({ config, now, data }) {
                     {departures.length === 0 && (
                         <div className="dep-row">
                             <div className="time" style={{ gridColumn: "1 / -1", fontSize: 32 }}>
-                            {data ? "No upcoming departures found" : "Connecting to train data..."}
+                           {!data
+                           ? "Connecting to train data..."
+                           : data.source === "unavailable"
+                           ? "Train data unavailable"
+                        : "No upcoming departures"}
                             </div>
                             </div>
                     )}

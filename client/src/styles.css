@@ -25,7 +25,7 @@ html, body, #root {
     font-family: "Overpass", "Helvetica Neue", Arial, sans-serif;
     color: var(--amber);
     font-variant-numeric: tabular-nums;
-    /* cursor: none;  kiosk: hide any stray pointer */
+    cursor: none;
 }
 .board {
     display: grid;

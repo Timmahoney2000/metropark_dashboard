@@ -167,9 +167,8 @@ function findStopArrival(stops, fromCode, toCode) {
     if(!Array.isArray(stops)) return null;
     const from = stops.findIndex((s) => s?.STATION_2CHAR === fromCode);
     const to = stops.findIndex((s) => s?.STATION_2CHAR === toCode);
-     console.log("[njt] arrival:", { from, to, raw: stops[to]?.TIME, parsed: parseNjtDate(stops[to]?.TIME) });
     if (from === -1 || to === -1 || to <= from) return null;
-    const t = parseNjtDate(stop.TIME);
+    const t = parseNjtDate(stops[to].TIME) || parseNjtDate(stops[to].DEP_TIME);
     return t ? t.toISOString() : null;
 }
 

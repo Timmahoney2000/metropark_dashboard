@@ -1,78 +1,62 @@
 import { Router } from "express";
-import { getLiveDepartures, liveConfigured } from "../services/njTransit.js";
+import { getLiveDepartures, liveConfigured } from "../services/njTransit";
 
 const router = Router();
 
 /**
  * GET /api/trains
- * Response shape (both mock and live adapters must return this):
+ * 
+ * There is deliberately NO mock/demo fallback here. This board hangs on a 
+ * bedroom wall and someone makes real decisions from it, so a plausible-looking
+ * fake departure is worse than an empty board. When anything goes wrong we
+ * return source: "unavailable" with an empty departures array, and the client
+ * says so plainly.
+ * 
+ * Response shape:
  * {
  * updatedAt: ISO string,
- * source: "mock" | "njt",
+ * source: "njt" | "unavailable",
+ * error: string,   // only when source is "unavailable"
+ * station: string,
  * alerts: [{ severity: "info"|"warn"|"bad", text }],
  * departures: [{
- * scheduled: ISO string, // scheduled departure from Metropark
- * estimated: ISO string, // best current estimate
- * train: "3838", // NJT train number
- * line: "Northeast Corridor",
- * track: "2" | null, // often null until -10 minutes out
- * statusL "on-time"|"late"|"canceled"|"boarding"|"all-aboard",
+ * scheduled: ISO string,    // scheduled departure from Metropark
+ * estimated: ISO string,    // scheduled + delay
+ * train: "3838",            // NJT train number
+ * line: "Northeast Corridr",
+ * track: "1" | null,        // already translated to the public track
+ * status: "on-time"|"late"|"canceled"|"boarding"|"all-aboard",
  * delayMinutes: 0,
- * arrivesNYP: ISO string | null
+ * arrivesNYP: ISO string | null,
+ * stopsToNY: number | null     // intermediate stops; ,+ 3 means express
  * }]
  * }
  */
-
 router.get("/", async (req, res) => {
-try {
-    if (liveConfigured()) {
+    if (!liveConfigured()) {
+        return res.json(
+            unavailable("NJ Transit credentials are not configured on this server")
+        );
+    }
+
+    try {
         const data = await getLiveDepartures();
         return res.json(data);
+    } catch (err) {
+        console.error("[trains] live fetch failed:", err.message);
+        return res.json(unavailable(err.message));
     }
-    return res.json(mockDepartures());
-} catch (err) {console.error("[trains] live fetch failed, serving mock:", err.message, err.cause ?? "");
-    const fallback = mockDepartures();
-    fallback.alerts.unshift({
-        severity: "warn",
-        text: "Live NJ Transit data unavailable = showing scheduled estimates",
-    });
-    fallback.stale = true;
-    return res.json(fallback);
-}
 });
 
-/** Fake but realistic NEC morning departures, always relative to "now". */
-function mockDepartures() {
-    const now = new Date();
-    const mins = (m) => new Date(now.getTime() + m * 60000);
-    const scenarios = [
-         { in: 9, train: "3838", delay: 0, track: "2", status: "on-time" },
-    { in: 24, train: "3944", delay: 6, track: null, status: "late" },
-    { in: 41, train: "3846", delay: 0, track: null, status: "on-time" },
-    { in: 58, train: "7846", delay: 0, track: null, status: "on-time" },
-    ];
+/** Explicit "we don't know" state - never fabricated departures. */
+function unavailable(error) {
     return {
-        updatedAt: now.toISOString(),
-        source: "mock",
-        alerts:
-        now.getMinutes() % 3 === 0
-        ? [
-            {
-                severity: "info",
-                text: "NEC trains operating close to schedule this morning",
-            },
-        ]
-        : [],
-        departures: scenarios.map((s) => ({
-            scheduled: mins(s.in - s.delay).toISOString(),
-            estimated: mins(s.in).toISOString(),
-            train: s.train,
-            line: "Northeast Corridor",
-            track: s.track,
-            status:s.status,
-            delayMinutes: s.delay,
-            arrivesNYP: mins(s.in + 32).toISOString(),
-        })),
+        updatedAt: new Date().toISOString(),
+        source: "unavailable",
+        error,
+        station: process.env.ORIGIN_STATION || "Metropark",
+        alert: [],
+        departures: [],
     };
 }
 
