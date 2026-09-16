@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getLiveDepartures, liveConfigured } from "../services/njTransit";
+import { getLiveDepartures, liveConfigured } from "../services/njTransit.js";
 
 const router = Router();
 
