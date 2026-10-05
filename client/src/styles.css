@@ -81,6 +81,7 @@ html, body, #root {
     flex-direction: column;
     padding: 22px 40px 18px;
     gap: 12px;
+    overflow: hidden;
 }
 .dep-head {
     display: grid;
@@ -136,23 +137,19 @@ html, body, #root {
 .dep-row .track { font-size: 46px; font-weight: 800; text-align: center; }
 .dep-row .track span { display: block; font-size: 24px; font-weight: 600; color: var(--amber-dim); }
 .dep-row .status { font-size: 38px; font-weight: 800; text-align: right; }
-.dep-row { font-size: 30px; font-weight:600; }
+.dep-row { font-size: 30px; font-weight:600; min-weight: 118px; }
 .dep-row .arrives span { display: block; font-size: 24px; font-weight: 600; color: var(--amber-dim); }
 .status.on-time, .status.boarding, .status.all-aboard { color: var(--ok-green); }
 .status.late, .status.canceled { color: var(--nec-crimson); }
 
 /* --- Alert ticker --------------------------------------------- */
 .alert { 
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 30px;
-    font-weight: 600;
-    color: var(--amber-dim);
-    padding: 2px 18px 0;
-    white-space: normal;
-    line-height: 1.3;
-    overflow: hidden;
+   font-size: 30px;
+   white-space: normal;
+   line-height: 1.3;
+   margin-top: auto;
+   max-height: 80px;
+   overflow: hidden;
 }
 .alert .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--amber-dim); flex: none; }
 .alert.warn { color: var(--amber); }
