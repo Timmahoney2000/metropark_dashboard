@@ -19,7 +19,7 @@ with the Northeast Corridor's crimson as the single accent.
 
 html, body, #root {
     width: 1920px;
-    height: 440px;
+    height: 720px;
     overflow: hidden;
     background: var(--ink-black);
     font-family: "Overpass", "Helvetica Neue", Arial, sans-serif;
@@ -29,7 +29,7 @@ html, body, #root {
 }
 .board {
     display: grid;
-    grid-template-columns: 430px 6px 1fr;
+    grid-template-columns: 520px 8px 1fr;
     width: 100%;
     height: 100%;
 }
@@ -42,7 +42,7 @@ html, body, #root {
     padding: 30px 34px 26px;
 }
 .rail .route {
-    font-size: 26px;
+    font-size: 34px;
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--amber-dim);
@@ -51,20 +51,20 @@ html, body, #root {
 
 .rail .route strong { color: var(--amber); font-weight: 800; }
 .rail .clock {
-    font-size: 118px;
+    font-size: 150px;
     font-weight: 800;
     letter-spacing: -0.01em;
     line-height: 1;
     color: var(--amber);
 }
 .rail .clock small {
-    font-size: 40px;
+    font-size: 52px;
     font-weight: 600;
     color: var(--amber-dim);
     margin-left: 8px;
 }
 .rail .leave {
-    font-size:30px;
+    font-size:40px;
     font-weight: 600;
     color: var(--amber-dim);
     line-height: 1.35;
@@ -85,7 +85,7 @@ html, body, #root {
 .dep-head {
     display: grid;
     grid-template-columns: 220px 170px 200px 1fr 150px 260px;
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 600;
     color: var(--amber-dim);
     padding: 0 18px;
@@ -97,7 +97,7 @@ html, body, #root {
     background: var(--panel);
     border-radius: 6px;
     padding: 14px 18px;
-    min-height: 78px;
+    min-height: 130px;
 }
 .dep-head, .dep-row {
     grid-template-columns: 220px 150px 200px 120px 110px 220px;
@@ -105,7 +105,7 @@ html, body, #root {
 
 .rail .clock em {
     display: block;
-    font-size: 24px;
+    font-size: 32px;
     font-weight: 800;
     font-style: normal;
     letter-spacing: 0.08em;
@@ -115,29 +115,29 @@ html, body, #root {
 
 .rail .clock b {
     display: block;
-    font-size: 26px;
+    font-size: 34px;
     font-weight: 600;
     color: var(--amber-dim);
     margin-top: 6px;
 }
 
 .dep-row.next { outline: 2px solid var(--amber); }
-.dep-row .time { font-size: 52px; font-weight: 800; line-height: 1; }
+.dep-row .time { font-size: 80px; font-weight: 800; line-height: 1; }
 .dep-row .time s {
     display: block;
-    font-size: 20px;
+    font-size: 28px;
     font-weight: 600;
     color: var(--amber-dim);
     text-decoration: line-through;
 }
 .dep-row .train { font-size: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;  font-weight: 600; color: var(--amber-dim); }
-.dep-row .train b { display: block; font-size: 30px; color: var(--amber); font-weight: 800; }
-.dep-row .in { font-size: 30px; font-weight: 600; }
-.dep-row .track { font-size: 30px; font-weight: 800; text-align: center; }
-.dep-row .track span { display: block; font-size: 18px; font-weight: 600; color: var(--amber-dim); }
-.dep-row .status { font-size: 28px; font-weight: 800; text-align: right; }
+.dep-row .train b { display: block; font-size: 46px; color: var(--amber); font-weight: 800; }
+.dep-row .in { font-size: 44px; font-weight: 600; }
+.dep-row .track { font-size: 46px; font-weight: 800; text-align: center; }
+.dep-row .track span { display: block; font-size: 24px; font-weight: 600; color: var(--amber-dim); }
+.dep-row .status { font-size: 38px; font-weight: 800; text-align: right; }
 .dep-row { font-size: 30px; font-weight:600; }
-.dep-row .arrives span { display: block; font-size: 18px; font-weight: 600; color: var(--amber-dim); }
+.dep-row .arrives span { display: block; font-size: 24px; font-weight: 600; color: var(--amber-dim); }
 .status.on-time, .status.boarding, .status.all-aboard { color: var(--ok-green); }
 .status.late, .status.canceled { color: var(--nec-crimson); }
 
@@ -146,11 +146,12 @@ html, body, #root {
     display: flex;
     align-items: center;
     gap: 14px;
-    font-size: 22px;
+    font-size: 30px;
     font-weight: 600;
     color: var(--amber-dim);
     padding: 2px 18px 0;
-    white-space: nowrap;
+    white-space: normal;
+    line-height: 1.3;
     overflow: hidden;
 }
 .alert .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--amber-dim); flex: none; }
