@@ -31,6 +31,20 @@ function currentMode(cfg, now) {
     : "photos";
 }
 
+const [peek, setPeek] = useState(0);   //timestamp of last tap
+useEffect(() => {
+    const onTap = () => setPeek(Date.now());
+    widow.addEventListener("pointerdown", onTap);
+    return () => window.removeEventListener("pointerdown", onTap);
+}, []);
+
+const peeking = Date.now() - peek < 60000;
+const mode = useMemo(
+    ()
+ => (peeking ? "dashboard" : currentMode(config, now)),
+ [config, now, peeking]
+);
+
 export default function App() {
     const [config, setConfig] = useState(DEFAULT_CONFIG);
     const [now, setNow] = useState(() => new Date());
