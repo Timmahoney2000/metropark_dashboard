@@ -39,8 +39,7 @@ useEffect(() => {
 }, []);
 
 const peeking = Date.now() - peek < 60000;
-const mode = useMemo(
-    () => (peeking ? "dashboard" : currentMode(config, now)),
+const mode = useMemo( () => (peeking ? "dashboard" : currentMode(config, now)),
  [config, now, peeking]
 );
 
